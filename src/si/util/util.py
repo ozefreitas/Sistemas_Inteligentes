@@ -4,7 +4,7 @@ import numpy as np
 # Y is reserved to idenfify dependent variables
 ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXZ'
 
-__all__ = ['label_gen', 'summary', "euclidean", "manhattan"]
+__all__ = ['label_gen', 'summary', "euclidean", "manhattan", "accuracy_score"]
 
 
 def label_gen(n):
