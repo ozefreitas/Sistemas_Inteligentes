@@ -4,7 +4,7 @@ import numpy as np
 # Y is reserved to idenfify dependent variables
 ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXZ'
 
-__all__ = ['label_gen', 'summary', "euclidean", "manhattan", "accuracy_score"]
+__all__ = ['label_gen', 'summary', "euclidean", "manhattan", "accuracy_score", "train_test_split"]
 
 
 def label_gen(n):
@@ -78,9 +78,13 @@ def accuracy_score(pred, real):
 def train_test_split(dataset, split=0.8):
     x = dataset.X
     n = x.shape[0]  # tamanho do dataset
-    m = split*n  # número da samples a ficar no train
-    arr = np.arange(n)
-    np.random.shuffle(arr)
+    m = int(split*n)  # número da samples a ficar no train
+    # print(m)
+    arr = np.arange(n)  # em forma de array
+    # print(arr)
+    np.random.shuffle(arr)  # randomize dos indices
+    # print("depois de aplicado o random:", arr)
+    from src.si.data.dataset import Dataset
     train = Dataset(x[arr[:m]], dataset.Y[arr[:m]], dataset._xnames, dataset._yname)
     test = Dataset(x[arr[m:]], dataset.Y[arr[m:]], dataset._xnames, dataset._yname)
     return train, test
