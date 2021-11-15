@@ -4,7 +4,7 @@ import numpy as np
 # Y is reserved to idenfify dependent variables
 ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXZ'
 
-__all__ = ['label_gen', 'summary', "euclidean", "manhattan", "accuracy_score", "train_test_split"]
+__all__ = ['label_gen', 'summary', "euclidean", "manhattan", "accuracy_score", "train_test_split", "mse"]
 
 
 def label_gen(n):
@@ -88,3 +88,12 @@ def train_test_split(dataset, split=0.8):
     train = Dataset(x[arr[:m]], dataset.Y[arr[:m]], dataset._xnames, dataset._yname)
     test = Dataset(x[arr[m:]], dataset.Y[arr[m:]], dataset._xnames, dataset._yname)
     return train, test
+
+
+def mse(y_true, y_pred, squared=True):
+    y_true = np.array(y_true)
+    y_pred = np.array(y_pred)
+    errors = np.average((y_true - y_pred)**2, axis=0)
+    if not squared:
+        errors = np.sqrt(errors)
+    return np.average(errors)
