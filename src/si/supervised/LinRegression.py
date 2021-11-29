@@ -1,7 +1,7 @@
 import numpy as np
 from .Modelo import Model
 from src.si.data.dataset import Dataset
-from src.si.util.util import mse
+from src.si.util.metrics import mse
 
 
 class LinearRegression(Model):

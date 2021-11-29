@@ -1,5 +1,5 @@
-from .model import Model
-from ..util import accuracy_score
+from src.si.supervised.Modelo import Model
+from src.si.util.metrics import accuracy_score
 import numpy as np
 
 

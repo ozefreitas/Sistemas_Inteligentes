@@ -1,5 +1,6 @@
 from .Modelo import Model
-from src.si.util.util import euclidean, accuracy_score
+from src.si.util.util import euclidean
+from src.si.util.metrics import accuracy_score
 import numpy as np
 
 

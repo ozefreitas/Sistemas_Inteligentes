@@ -66,15 +66,6 @@ def manhattan(x, y):  # mesmo que euclidean
     return dist
 
 
-def accuracy_score(pred, real):
-    score = 0
-    for i in range(len(pred)):
-        if pred[i] == real[i]:
-            score += 1
-    final_score = score / len(pred)
-    return final_score
-
-
 def train_test_split(dataset, split=0.8):
     x = dataset.X
     n = x.shape[0]  # tamanho do dataset
@@ -88,15 +79,6 @@ def train_test_split(dataset, split=0.8):
     train = Dataset(x[arr[:m]], dataset.Y[arr[:m]], dataset._xnames, dataset._yname)
     test = Dataset(x[arr[m:]], dataset.Y[arr[m:]], dataset._xnames, dataset._yname)
     return train, test
-
-
-def mse(y_true, y_pred, squared=True):
-    y_true = np.array(y_true)
-    y_pred = np.array(y_pred)
-    errors = np.average((y_true - y_pred)**2, axis=0)
-    if not squared:
-        errors = np.sqrt(errors)
-    return np.average(errors)
 
 
 def sigmoide(z):
