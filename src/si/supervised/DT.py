@@ -153,7 +153,7 @@ class DecisionTree(Model):
         self.Tree.depth = 1
         self.Tree.probas = self.nodeProbas(y)
         self.buildDT(X, y, self.Tree)
-        self.is_fitted = True
+        self.is_fited = True
 
     def predictSample(self, x, node):
         '''
