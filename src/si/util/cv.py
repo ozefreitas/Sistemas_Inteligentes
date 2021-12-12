@@ -19,10 +19,10 @@ class CrossValidationScore:
         ds = []
         for _ in range(self.cv):
             train, test = train_test_split(self.dataset,self.split)
-            ds.append((train,test))
+            ds.append((train, test))
             self.model.fit(train)
             train_scores.append(self.model.cost())
-            test_scores.append(self.model.cost(test.X,test.Y))
+            test_scores.append(self.model.cost(test.X, test.Y))
         self.train_scores = train_scores
         self.test_scores = test_scores
         self.ds = ds
