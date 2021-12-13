@@ -34,5 +34,5 @@ class Ensemble(Model):
     def cost(self, X=None, Y=None):
         X = X if X is not None else self.dataset.X
         Y = Y if Y is not None else self.dataset.Y
-        y_pred = np.ma.apply_along_axis(self.predict, axis=0, ar=X.T)
+        y_pred = np.ma.apply_along_axis(self.predict, axis=0, arr=X.T)
         return self.score(Y, y_pred)

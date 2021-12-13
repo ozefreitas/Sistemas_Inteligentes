@@ -159,7 +159,7 @@ class DecisionTree(Model):
         '''
         Passes one object through decision tree and return the probability of it to belong to each class
         '''
-        assert self.is_fitted, 'Model must be fit before predicting'
+        assert self.is_fited, 'Model must be fit before predicting'
         # if we have reached the terminal node of the tree
         if node.is_terminal:
             return node.probas
@@ -171,7 +171,7 @@ class DecisionTree(Model):
         return probas
 
     def predict(self, x):
-        assert self.is_fitted, 'Model must be fit before predicting'
+        assert self.is_fited, 'Model must be fit before predicting'
         pred = np.argmax(self.predictSample(x, self.Tree))
         return pred
 
