@@ -169,30 +169,3 @@ class Conv2D(Layer):
         self.bias -= learning_rate*db
 
         return input_error
-
-
-class MaxPoling(Layer):
-    def __init__(self, region_shape):
-        self.region_shape = region_shape
-        self.region_h, self.region_w = region_shape
-
-    def forward(self,input_data):
-        self.X_input = input_data
-        _, self.input_h, self.input_w, self.input_f = input_data.shape
-
-        self.out_h = self.input_h // self.region_h
-        self.out_w = self.input_w // self.region_w
-        output = np.zeros((self.out_h, self.out_w, self.input_f))
-
-        for image, i, j in self.iterate_regions():
-            output[i, j] = np.amax(image)
-        return output
-
-    def backward(self,output_error, lr):
-        pass
-
-    def iterate_regions(self):
-        for i in range(self.out_h):
-            for j in range(self.out_w):
-                image = self.X_input[(i * self.region_h): (i * self.region_h + 2), (j * self.region_h):(j * self.region_h + 2)]
-                yield image, i, j
