@@ -1,6 +1,8 @@
 import numpy as np
 from src.si.util.activation import *
 from src.si.util.metrics import mse, mse_prime
+from src.si.supervised.Modelo import Model
+from src.si.util.im2col import pad2D, im2col, col2im
 
 
 class Layer(ABC):
@@ -55,7 +57,7 @@ class Activation(Layer):
         return np.multiply(self.function.prime(self.input),output_error)
 
 
-class NN:
+class NN(Model):
     def __init__(self, epochs=1000, lr=0.001, verbose=True):
         self.epochs = epochs
         self.lr = lr
@@ -103,3 +105,94 @@ class NN:
         y = y if y is not None else self.dataset.y
         output = self.predict(X)
         return self.loss(y, output)
+
+
+class Flatten(Layer):
+    def forward(self,input):
+        self.input_shape= input.shape
+        output = input.reshape(input.shape[0],-1)
+        return output
+
+    def backward(self,output_error, lr):
+        return output_error.reshape(self.input_shape)
+
+
+class Conv2D(Layer):
+    def __init__(self, input_shape,kernel_shape, layer_depth, stride = 1, padding = 0):
+        self.input_shape = input_shape
+        self.in_ch = input_shape[2]
+        self.out_ch = layer_depth
+        self.stride = stride
+        self.padding = padding
+
+        self.weights = np.random.rand(kernel_shape[0],kernel_shape[1],
+                                      self.in_ch, self.out_ch) -0.5
+
+        self.bias = np.zeros((self.out_ch,1))
+
+    def forward(self,input_data):
+        s = self.stride
+        self.X_shape = input_data.shape
+        _, p = pad2D(input_data, self.padding, self.weights.shape[:2], s)
+
+        pr1, pr2, pc1, pc2 = p
+        fr, fc, in_ch, out_ch = self.weights.shape
+        n_ex, in_rows, in_cols, in_ch = input_data.shape
+
+        # compute the dimensions of the convolution output
+        out_rows = int((in_rows + pr1 + pr2-fr) / s + 1)
+        out_cols = int((in_cols + pc1 + pc2 -fc) / s + 1)
+
+        # convert X and w into the appropriate 2D matrices and take their product
+        self.X_col, _ = im2col(input_data, self.weights.shape, p, s)
+        W_col = self.weights.transpose(3, 2, 0, 1).reshape(out_ch, -1)
+
+        output_data = (W_col @ self.X_col + self.bias).reshape(out_ch, out_rows, out_cols, n_ex).transpose(3, 1, 2, 0)
+        return output_data
+
+    def backward(self, output_error, learning_rate):
+        fr, fc, in_ch, out_ch = self.weights.shape
+        p = self.padding
+
+        db = np.sum(output_error, axis=(0, 1, 2))
+        db = db.reshape(out_ch,)
+
+        dout_reshaped = output_error.transpose(1, 2, 3, 0).reshape(out_ch, -1)
+        dW = dout_reshaped @ self.X_col.T
+        dW = dW.reshape(self.weights.shape)
+
+        W_reshape = self.weights.reshape(out_ch, -1)
+        dx_col = W_reshape. T @ dout_reshaped
+        input_error = col2im(dx_col, self.X_shape, self.weights.shape, (p, p, p, p), self.stride)
+
+        self.weights -= learning_rate*dW
+        self.bias -= learning_rate*db
+
+        return input_error
+
+
+class MaxPoling(Layer):
+    def __init__(self, region_shape):
+        self.region_shape = region_shape
+        self.region_h, self.region_w = region_shape
+
+    def forward(self,input_data):
+        self.X_input = input_data
+        _, self.input_h, self.input_w, self.input_f = input_data.shape
+
+        self.out_h = self.input_h // self.region_h
+        self.out_w = self.input_w // self.region_w
+        output = np.zeros((self.out_h, self.out_w, self.input_f))
+
+        for image, i, j in self.iterate_regions():
+            output[i, j] = np.amax(image)
+        return output
+
+    def backward(self,output_error, lr):
+        pass
+
+    def iterate_regions(self):
+        for i in range(self.out_h):
+            for j in range(self.out_w):
+                image = self.X_input[(i * self.region_h): (i * self.region_h + 2), (j * self.region_h):(j * self.region_h + 2)]
+                yield image, i, j
